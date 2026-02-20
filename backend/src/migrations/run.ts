@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import pool from '../db';
 
-async function runMigrations() {
+export async function runMigrations() {
     const client = await pool.connect();
     try {
         const sqlPath = path.join(__dirname, '001_init.sql');
@@ -15,8 +15,12 @@ async function runMigrations() {
         throw error;
     } finally {
         client.release();
-        await pool.end();
     }
 }
 
-runMigrations().catch(() => process.exit(1));
+// Run immediately only if executed directly (not imported)
+if (require.main === module) {
+    runMigrations()
+        .then(() => pool.end())
+        .catch(() => process.exit(1));
+}

@@ -9,6 +9,7 @@ dotenv.config();
 import authRoutes from './routes/auth';
 import studentRoutes from './routes/students';
 import photoRoutes from './routes/photos';
+import { runMigrations } from './migrations/run';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -71,7 +72,13 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
     res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    try {
+        await runMigrations();
+    } catch (err) {
+        console.error('Failed to run migrations on startup:', err);
+    }
+
     console.log(`\n🚀 ATFITK Backend API running on port ${PORT}`);
     console.log(`   Health: http://localhost:${PORT}/api/health`);
     console.log(`   Photos: http://localhost:${PORT}/uploads/`);
