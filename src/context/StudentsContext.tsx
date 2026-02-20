@@ -1,41 +1,66 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Student } from '../types';
-import { getStudents, addStudent, updateStudent, deleteStudent } from '../utils/storage';
+import {
+    getStudents as apiGetStudents,
+    createStudent as apiCreateStudent,
+    updateStudent as apiUpdateStudent,
+    deleteStudent as apiDeleteStudent,
+} from '../api/students';
 
 interface StudentsContextType {
     students: Student[];
-    refresh: () => void;
-    add: (s: Student) => void;
-    update: (s: Student) => void;
-    remove: (id: string) => void;
+    loading: boolean;
+    error: string | null;
+    refresh: () => Promise<void>;
+    add: (s: Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'photo'>) => Promise<Student>;
+    update: (id: string, s: Partial<Student>) => Promise<Student>;
+    remove: (id: string) => Promise<void>;
 }
 
 const StudentsContext = createContext<StudentsContextType | null>(null);
 
 export function StudentsProvider({ children }: { children: React.ReactNode }) {
-    const [students, setStudents] = useState<Student[]>(getStudents);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const refresh = useCallback(() => {
-        setStudents(getStudents());
+    const refresh = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await apiGetStudents();
+            setStudents(data);
+        } catch (err) {
+            console.error('Failed to load students:', err);
+            setError('Не удалось загрузить список студентов');
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    const add = useCallback((s: Student) => {
-        addStudent(s);
-        setStudents(getStudents());
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
+
+    const add = useCallback(async (s: Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'photo'>): Promise<Student> => {
+        const created = await apiCreateStudent(s);
+        setStudents((prev) => [created, ...prev]);
+        return created;
     }, []);
 
-    const update = useCallback((s: Student) => {
-        updateStudent(s);
-        setStudents(getStudents());
+    const update = useCallback(async (id: string, s: Partial<Student>): Promise<Student> => {
+        const updated = await apiUpdateStudent(id, s);
+        setStudents((prev) => prev.map((st) => (st.id === id ? updated : st)));
+        return updated;
     }, []);
 
-    const remove = useCallback((id: string) => {
-        deleteStudent(id);
-        setStudents(getStudents());
+    const remove = useCallback(async (id: string): Promise<void> => {
+        await apiDeleteStudent(id);
+        setStudents((prev) => prev.filter((st) => st.id !== id));
     }, []);
 
     return (
-        <StudentsContext.Provider value={{ students, refresh, add, update, remove }}>
+        <StudentsContext.Provider value={{ students, loading, error, refresh, add, update, remove }}>
             {children}
         </StudentsContext.Provider>
     );

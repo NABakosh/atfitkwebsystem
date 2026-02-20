@@ -1020,6 +1020,11 @@ tbody td {
 }
 
 /* ===================== PRINT ===================== */
+@page {
+  size: A4 portrait;
+  margin: 15mm;
+}
+
 .print-only {
   display: none;
 }
@@ -1033,6 +1038,100 @@ tbody td {
   min-height: 100vh;
   z-index: 9999;
   background: white;
+
+  /* Centering the 40% container */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
+/* Force everything inside printable overlay to be black on white */
+.printable-overlay * {
+  color: black !important;
+  border-color: black !important;
+  background-color: transparent !important;
+  -webkit-text-fill-color: black !important;
+}
+
+/* Specific container styling */
+.print-container {
+  font-family: 'Times New Roman', serif;
+  width: 40% !important;
+  /* User requested 40% width */
+  background: white !important;
+  padding: 20px;
+  /* Some padding for visual clarity on screen */
+}
+
+.print-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #000;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  color: #000 !important;
+}
+
+.print-header-text {
+  flex: 1;
+  padding-right: 10px;
+  text-align: center;
+}
+
+.print-photo {
+  width: 3cm;
+  height: 4cm;
+  object-fit: cover;
+  border: 1px solid #000;
+  flex-shrink: 0;
+}
+
+/* Sections handling */
+.print-section {
+  page-break-inside: avoid;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-weight: bold;
+  font-size: 12pt;
+  border-bottom: 1px solid #000;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #000 !important;
+}
+
+.print-table {
+  width: 100% !important;
+  border-collapse: collapse;
+  margin-bottom: 4px;
+  page-break-inside: avoid;
+}
+
+.print-row td {
+  padding: 1px 0;
+  vertical-align: top;
+  color: #000 !important;
+}
+
+.print-label {
+  font-weight: bold;
+  width: 40%;
+  padding-right: 8px;
+}
+
+.print-value {
+  padding-left: 8px;
+  border-bottom: 1px dotted #ccc;
+}
+
+table {
+  page-break-inside: avoid;
+  width: 100% !important;
 }
 
 @media print {
@@ -1041,25 +1140,108 @@ tbody td {
     print-color-adjust: exact !important;
   }
 
-  @page {
-    size: A4 portrait;
-    margin: 15mm;
-  }
-
+  html,
   body {
+    width: auto !important;
+    height: auto !important;
     background: #fff !important;
     color: #000 !important;
     font-family: 'Times New Roman', serif;
     font-size: 11pt;
+    overflow: visible !important;
   }
 
   /* Reset overlay for print flow */
   .printable-overlay {
     position: static !important;
-    width: auto !important;
+    width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
+    display: block !important;
+    page-break-inside: avoid;
+    padding-top: 0 !important;
+    /* Reset padding for print */
+  }
+
+  #print-card-area {
+    width: 100%;
+  }
+
+  /* Sections handling */
+  .print-container {
+    font-family: 'Times New Roman', serif;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #000;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    color: #000 !important;
+  }
+
+  .print-header-text {
+    flex: 1;
+    padding-right: 10px;
+    text-align: center;
+  }
+
+  .print-photo {
+    width: 3cm;
+    height: 4cm;
+    object-fit: cover;
+    border: 1px solid #000;
+    flex-shrink: 0;
+  }
+
+  .print-section {
+    page-break-inside: avoid;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-weight: bold;
+    font-size: 12pt;
+    border-bottom: 1px solid #000;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #000 !important;
+  }
+
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+    page-break-inside: avoid;
+  }
+
+  .print-row td {
+    padding: 1px 0;
+    vertical-align: top;
+    color: #000 !important;
+  }
+
+  .print-label {
+    font-weight: bold;
+    width: 40%;
+    padding-right: 8px;
+  }
+
+  .print-value {
+    padding-left: 8px;
+    border-bottom: 1px dotted #ccc;
+  }
+
+  table {
+    page-break-inside: avoid;
+    width: 100% !important;
   }
 
   /* Hide interactive chrome */

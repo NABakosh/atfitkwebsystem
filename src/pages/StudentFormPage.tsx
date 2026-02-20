@@ -7,6 +7,7 @@ import type { Student, Consultation } from '../types';
 import {
     INTERNAL_REGISTRY_GROUNDS, ALMATY_DISTRICTS, OBLAST_DISTRICTS, POLICE_REGISTRY_TYPES
 } from '../types';
+import { uploadStudentPhoto } from '../api/students';
 import {
     User, Users, Building2, Shield, Brain, Save, ArrowLeft, Camera, Plus, Trash2, ChevronDown, ChevronUp
 } from 'lucide-react';
@@ -85,13 +86,18 @@ export function StudentFormPage() {
     const [tab, setTab] = useState('basic');
     const [form, setForm] = useState<Student>(EMPTY_STUDENT);
     const [saving, setSaving] = useState(false);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string>('');
     const fileRef = useRef<HTMLInputElement>(null);
     const isEdit = !!id;
 
     useEffect(() => {
         if (isEdit) {
             const s = students.find(x => x.id === id);
-            if (s) setForm({ ...s });
+            if (s) {
+                setForm({ ...s });
+                setPhotoPreview(s.photo || '');
+            }
         }
     }, [id, students]);
 
@@ -112,8 +118,10 @@ export function StudentFormPage() {
     const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        setPhotoFile(file);
+        // Show local preview immediately
         const reader = new FileReader();
-        reader.onload = ev => set('photo', ev.target?.result as string);
+        reader.onload = ev => setPhotoPreview(ev.target?.result as string);
         reader.readAsDataURL(file);
     };
 
@@ -164,17 +172,49 @@ export function StudentFormPage() {
             return;
         }
         setSaving(true);
-        await new Promise(r => setTimeout(r, 400));
-        const now = new Date().toISOString();
-        if (isEdit) {
-            update({ ...form, updatedAt: now });
-            toast.success(`Данные студента «${form.fullName}» сохранены`);
-        } else {
-            add({ ...form, id: uuid(), createdAt: now, updatedAt: now });
-            toast.success(`Студент «${form.fullName}» добавлен`);
+        try {
+            // Prepare data without photo (photo uploaded separately)
+            const studentData = {
+                fullName: form.fullName,
+                birthDate: form.birthDate,
+                group: form.group,
+                iin: form.iin,
+                previousSchool: form.previousSchool,
+                specialty: form.specialty,
+                course: form.course,
+                address: form.address,
+                phone: form.phone,
+                family: form.family,
+                internalRegistry: form.internalRegistry,
+                policeRegistry: form.policeRegistry,
+                consultations: form.consultations,
+            };
+
+            let savedStudent: Student;
+            if (isEdit) {
+                savedStudent = await update(id!, studentData);
+                toast.success(`Данные студента «${form.fullName}» сохранены`);
+            } else {
+                savedStudent = await add({ ...studentData, id: uuid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Parameters<typeof add>[0]);
+                toast.success(`Студент «${form.fullName}» добавлен`);
+            }
+
+            // Upload photo if a new file was selected
+            if (photoFile && savedStudent?.id) {
+                try {
+                    await uploadStudentPhoto(savedStudent.id, photoFile);
+                } catch {
+                    toast.error('Студент сохранён, но фото не загрузилось — повторите позже');
+                }
+            }
+
+            navigate('/dashboard');
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Неизвестная ошибка';
+            toast.error(`Ошибка: ${msg}`);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false);
-        navigate('/dashboard');
     };
 
     return (
@@ -212,8 +252,8 @@ export function StudentFormPage() {
                                 <div className="section-title" style={{ fontSize: 12, marginBottom: 12 }}>Фото студента</div>
                                 <div className="photo-upload-area" style={{ width: 120, padding: 16 }}
                                     onClick={() => fileRef.current?.click()}>
-                                    {form.photo
-                                        ? <img src={form.photo} alt="Фото" className="photo-preview" style={{ width: 90, height: 120 }} />
+                                    {photoPreview
+                                        ? <img src={photoPreview} alt="Фото" className="photo-preview" style={{ width: 90, height: 120 }} />
                                         : <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
                                             <Camera size={28} style={{ marginBottom: 8, display: 'block', margin: '0 auto 8px' }} />
                                             <span style={{ fontSize: 11 }}>Загрузить фото</span>
@@ -221,9 +261,9 @@ export function StudentFormPage() {
                                     }
                                 </div>
                                 <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
-                                {form.photo && (
+                                {photoPreview && (
                                     <button type="button" className="btn btn-danger btn-sm" style={{ marginTop: 8, width: '100%' }}
-                                        onClick={() => set('photo', '')}>
+                                        onClick={() => { setPhotoPreview(''); setPhotoFile(null); }}>
                                         Удалить фото
                                     </button>
                                 )}

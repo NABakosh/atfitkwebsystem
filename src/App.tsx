@@ -7,10 +7,6 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { StudentFormPage } from './pages/StudentFormPage';
 import { StudentCardPage } from './pages/StudentCardPage';
-import { seedDemoData } from './utils/seedData';
-
-// Seed demo data on first run
-seedDemoData();
 
 function ProtectedLayout() {
   const { user } = useAuth();
@@ -54,4 +50,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
