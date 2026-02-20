@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStudents } from '../context/StudentsContext';
 import { useToast } from '../context/ToastContext';
-import { v4 as uuid } from '../utils/uuid';
+import { v4 as uuid } from 'uuid';
 import type { Student, Consultation } from '../types';
 import {
     INTERNAL_REGISTRY_GROUNDS, ALMATY_DISTRICTS, OBLAST_DISTRICTS, POLICE_REGISTRY_TYPES
@@ -322,9 +322,9 @@ export function StudentFormPage() {
                 {/* ===== FAMILY ===== */}
                 {tab === 'family' && (
                     <div className="card">
-                        <FamilySection label="Мать" prefix="family.mother" form={form} set={set} showRelation={false} />
+                        <FamilySection label="Мать" prefix="family.mother" form={form} set={set} />
                         <div className="divider" />
-                        <FamilySection label="Отец" prefix="family.father" form={form} set={set} showRelation={false} />
+                        <FamilySection label="Отец" prefix="family.father" form={form} set={set} />
                         <div className="divider" />
                         <div className="section-title"><Users size={16} />Законный представитель</div>
                         <div className="form-grid">
@@ -563,9 +563,9 @@ export function StudentFormPage() {
 }
 
 function FamilySection({
-    label, prefix, form, set, showRelation
+    label, prefix, form, set
 }: {
-    label: string; prefix: string; form: Student; set: (p: string, v: unknown) => void; showRelation: boolean;
+    label: string; prefix: string; form: Student; set: (p: string, v: unknown) => void;
 }) {
     const parts = prefix.split('.');
     type FamilyKey = 'mother' | 'father' | 'guardian';

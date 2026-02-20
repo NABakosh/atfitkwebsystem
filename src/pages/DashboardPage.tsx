@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useStudents } from '../context/StudentsContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { Search, Plus, Printer, Download, Eye, Edit2, Trash2, User, FileText } from 'lucide-react';
+import { Search, Plus, Printer, Eye, Edit2, Trash2, User, FileText } from 'lucide-react';
 import type { Student } from '../types';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -60,7 +60,7 @@ export function DashboardPage() {
             const pageW = pdf.internal.pageSize.getWidth();
             const pageH = pdf.internal.pageSize.getHeight();
             const imgW = pageW;
-            const imgH = (canvas.height * imgW) / canvas.width;
+            // const imgH = (canvas.height * imgW) / canvas.width;
             let yPos = 0;
             let drawn = 0;
             while (drawn < canvas.height) {

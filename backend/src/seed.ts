@@ -16,9 +16,17 @@ const USERS = [
     },
 ];
 
-async function seed() {
+export async function seedUsers() {
     const client = await pool.connect();
     try {
+        // Check if users already exist
+        const res = await client.query('SELECT count(*) FROM users');
+        const count = parseInt(res.rows[0].count, 10);
+        if (count > 0) {
+            console.log('✅ Users already exist, skipping seed.');
+            return;
+        }
+
         console.log('🌱 Seeding users...');
         for (const user of USERS) {
             const hash = await bcrypt.hash(user.password, 12);
@@ -32,19 +40,20 @@ async function seed() {
                    updated_at = NOW()`,
                 [user.username, hash, user.role, user.display_name]
             );
-            console.log(`  ✅ User "${user.username}" (${user.role}) — password: ${user.password}`);
+            console.log(`  ✅ User "${user.username}" (${user.role}) created`);
         }
-        console.log('\n🎉 Seeding complete!');
-        console.log('\n📋 Login credentials:');
-        console.log('  Director:     director    / Atfitk@Dir2024!');
-        console.log('  Psychologist: psychologist / Psy#Atfitk2024!');
+        console.log('🎉 Seeding complete!');
     } catch (error) {
         console.error('❌ Seed error:', error);
         throw error;
     } finally {
         client.release();
-        await pool.end();
     }
 }
 
-seed().catch(() => process.exit(1));
+// Run immediately only if executed directly (not imported)
+if (require.main === module) {
+    seedUsers()
+        .then(() => pool.end())
+        .catch(() => process.exit(1));
+}
