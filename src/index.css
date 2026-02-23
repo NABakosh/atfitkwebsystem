@@ -47,8 +47,8 @@ body,
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -279,7 +279,7 @@ body {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 8px;
@@ -294,12 +294,12 @@ body {
 .form-select,
 .form-textarea {
   width: 100%;
-  background: var(--bg-input) !important;
+  background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 11px 14px;
   font-size: 14px;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   transition: var(--transition);
   outline: none;
@@ -445,12 +445,11 @@ body {
 
 /* ===================== CARDS ===================== */
 .card {
-  background: var(--bg-card) !important;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
-  color: var(--text-primary) !important;
 }
 
 .card-header {
@@ -465,7 +464,7 @@ body {
 .card-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -474,7 +473,7 @@ body {
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--gold) !important;
+  color: var(--gold);
   margin-bottom: 20px;
   display: flex;
   align-items: center;
@@ -825,14 +824,14 @@ tbody td {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03) !important;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 16px;
   cursor: pointer;
   transition: var(--transition);
   font-size: 14px;
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 .radio-item input[type="radio"] {
@@ -887,7 +886,7 @@ tbody td {
 
   body {
     background: #fff !important;
-    color: #fff !important;
+    color: #000 !important;
     font-family: 'Times New Roman', serif;
     font-size: 11pt;
   }
@@ -1098,12 +1097,12 @@ tbody td {
 .section-title {
   font-weight: bold;
   font-size: 12pt;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid #f59e0b;
   margin-bottom: 4px;
   padding-bottom: 2px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: #000 !important;
+  color: #f59e0b !important;
 }
 
 .print-table {
@@ -1116,7 +1115,7 @@ tbody td {
 .print-row td {
   padding: 1px 0;
   vertical-align: top;
-  color: #000 !important;
+  color: #f59e0b !important;
 }
 
 .print-label {
@@ -1208,12 +1207,12 @@ table {
   .section-title {
     font-weight: bold;
     font-size: 12pt;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #f59e0b;
     margin-bottom: 4px;
     padding-bottom: 2px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #000 !important;
+    color: #f59e0b !important;
   }
 
   .print-table {
