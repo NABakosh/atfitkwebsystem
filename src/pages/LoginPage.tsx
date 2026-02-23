@@ -95,11 +95,7 @@ export function LoginPage() {
                     </button>
                 </form>
 
-                <div style={{ marginTop: 28, padding: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-muted)' }}>
-                    <div style={{ marginBottom: 6, fontWeight: 600, color: 'var(--text-secondary)' }}>Учётные данные:</div>
-                    <div>🔑 Зам. директора: <code style={{ color: 'var(--gold)' }}>director / Atfitk@Dir2024!</code></div>
-                    <div style={{ marginTop: 4 }}>🔑 Психолог: <code style={{ color: 'var(--gold)' }}>psychologist / Psy#Atfitk2024!</code></div>
-                </div>
+
             </div>
         </div>
     );

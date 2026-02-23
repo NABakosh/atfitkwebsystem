@@ -27,7 +27,6 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'https://atfitk-websystem.vercel.app',
-    // Add your Vercel URL here when deployed
 ];
 
 app.use(cors({
@@ -39,6 +38,11 @@ app.use(cors({
         }
         // Allow any vercel.app subdomain
         if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+        // Allow any custom domain set via FRONTEND_URL env var (supports https://)
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (frontendUrl && origin === frontendUrl) {
             return callback(null, true);
         }
         return callback(new Error(`CORS error: origin ${origin} not allowed`));

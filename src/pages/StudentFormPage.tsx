@@ -3,13 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStudents } from '../context/StudentsContext';
 import { useToast } from '../context/ToastContext';
 import { v4 as uuid } from 'uuid';
-import type { Student, Consultation } from '../types';
+import type { Student, Consultation, SuicideIncident } from '../types';
 import {
     INTERNAL_REGISTRY_GROUNDS, ALMATY_DISTRICTS, OBLAST_DISTRICTS, POLICE_REGISTRY_TYPES
 } from '../types';
 import { uploadStudentPhoto } from '../api/students';
 import {
-    User, Users, Building2, Shield, Brain, Save, ArrowLeft, Camera, Plus, Trash2, ChevronDown, ChevronUp
+    User, Users, Building2, Shield, Brain, Save, ArrowLeft, Camera, Plus, Trash2, ChevronDown, ChevronUp, HeartPulse
 } from 'lucide-react';
 
 const EMPTY_STUDENT = (): Student => ({
@@ -55,6 +55,23 @@ const EMPTY_STUDENT = (): Student => ({
         removalGrounds: '',
     },
     consultations: [],
+    psychologistRegistry: {
+        isRegistered: false, registrationDate: '', grounds: '', responsible: '',
+        preventiveWork: '', status: '', removalDate: '', removalGrounds: '', notes: '',
+    },
+    supportGroup: {
+        isMember: false, groupName: '', joinDate: '', responsible: '',
+        workDescription: '', result: '', exitDate: '', exitGrounds: '',
+    },
+    psychiatristRegistry: {
+        isRegistered: false, organization: '', registrationDate: '', diagnosis: '',
+        doctor: '', treatmentPlace: '', status: '', removalDate: '', notes: '',
+    },
+    cppAccompaniment: {
+        isActive: false, startDate: '', specialist: '', workType: '',
+        goals: '', results: '', endDate: '', notes: '',
+    },
+    suicideRegistry: { hasFacts: false, incidents: [] },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
 });
@@ -76,6 +93,7 @@ const TABS = [
     { id: 'internal', label: 'Внутриколледжный учёт', icon: Building2 },
     { id: 'police', label: 'Учёт в УП', icon: Shield },
     { id: 'psychology', label: 'Работа психолога', icon: Brain },
+    { id: 'medical', label: 'Психологический учёт', icon: HeartPulse },
 ];
 
 export function StudentFormPage() {
@@ -188,6 +206,11 @@ export function StudentFormPage() {
                 internalRegistry: form.internalRegistry,
                 policeRegistry: form.policeRegistry,
                 consultations: form.consultations,
+                psychologistRegistry: form.psychologistRegistry,
+                supportGroup: form.supportGroup,
+                psychiatristRegistry: form.psychiatristRegistry,
+                cppAccompaniment: form.cppAccompaniment,
+                suicideRegistry: form.suicideRegistry,
             };
 
             let savedStudent: Student;
@@ -544,6 +567,385 @@ export function StudentFormPage() {
                                 onChange={(f, v) => updateConsultation(idx, f, v)}
                                 onRemove={() => removeConsultation(idx)} />
                         ))}
+                    </div>
+                )}
+
+                {/* ===== MEDICAL / PSYCHOLOGICAL ACCOUNTING ===== */}
+                {tab === 'medical' && (
+                    <div className="card">
+
+                        {/* 1. Учёт у психолога */}
+                        <div className="section-title"><HeartPulse size={16} />1. Нахождение на учёте у психолога колледжа</div>
+                        <div className="form-group">
+                            <label className="form-label">Состоит на учёте у психолога?</label>
+                            <div className="radio-group">
+                                {[['Да', true], ['Нет', false]].map(([lbl, val]) => (
+                                    <label key={String(lbl)} className="radio-item">
+                                        <input type="radio" name="psyReg"
+                                            checked={form.psychologistRegistry.isRegistered === val}
+                                            onChange={() => set('psychologistRegistry.isRegistered', val)} />
+                                        {String(lbl)}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        {form.psychologistRegistry.isRegistered && (
+                            <>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Дата постановки</label>
+                                        <input className="form-input" type="date" value={form.psychologistRegistry.registrationDate} onChange={e => set('psychologistRegistry.registrationDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Статус</label>
+                                        <div className="radio-group">
+                                            {['На учете', 'Снят'].map(s => (
+                                                <label key={s} className="radio-item">
+                                                    <input type="radio" name="psyStatus" value={s} checked={form.psychologistRegistry.status === s} onChange={() => set('psychologistRegistry.status', s)} />
+                                                    {s}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Ответственный</label>
+                                        <input className="form-input" type="text" value={form.psychologistRegistry.responsible} onChange={e => set('psychologistRegistry.responsible', e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="form-grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Основание постановки</label>
+                                        <textarea className="form-textarea" rows={2} value={form.psychologistRegistry.grounds} onChange={e => set('psychologistRegistry.grounds', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Профилактическая работа</label>
+                                        <textarea className="form-textarea" rows={2} value={form.psychologistRegistry.preventiveWork} onChange={e => set('psychologistRegistry.preventiveWork', e.target.value)} />
+                                    </div>
+                                </div>
+                                {form.psychologistRegistry.status === 'Снят' && (
+                                    <div className="form-grid-2" style={{ padding: 16, background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 8 }}>
+                                        <div className="form-group">
+                                            <label className="form-label">Дата снятия</label>
+                                            <input className="form-input" type="date" value={form.psychologistRegistry.removalDate} onChange={e => set('psychologistRegistry.removalDate', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Основание снятия</label>
+                                            <input className="form-input" type="text" value={form.psychologistRegistry.removalGrounds} onChange={e => set('psychologistRegistry.removalGrounds', e.target.value)} />
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="form-group">
+                                    <label className="form-label">Примечания</label>
+                                    <textarea className="form-textarea" rows={2} value={form.psychologistRegistry.notes} onChange={e => set('psychologistRegistry.notes', e.target.value)} />
+                                </div>
+                            </>
+                        )}
+
+                        <div className="divider" />
+
+                        {/* 2. Группа сопровождения */}
+                        <div className="section-title"><Users size={16} />2. Группа сопровождения</div>
+                        <div className="form-group">
+                            <label className="form-label">Входит в группу сопровождения?</label>
+                            <div className="radio-group">
+                                {[['Да', true], ['Нет', false]].map(([lbl, val]) => (
+                                    <label key={String(lbl)} className="radio-item">
+                                        <input type="radio" name="suppGroup"
+                                            checked={form.supportGroup.isMember === val}
+                                            onChange={() => set('supportGroup.isMember', val)} />
+                                        {String(lbl)}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        {form.supportGroup.isMember && (
+                            <>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Наименование группы</label>
+                                        <input className="form-input" type="text" value={form.supportGroup.groupName} onChange={e => set('supportGroup.groupName', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Дата включения</label>
+                                        <input className="form-input" type="date" value={form.supportGroup.joinDate} onChange={e => set('supportGroup.joinDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Ответственный</label>
+                                        <input className="form-input" type="text" value={form.supportGroup.responsible} onChange={e => set('supportGroup.responsible', e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="form-grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Описание работы</label>
+                                        <textarea className="form-textarea" rows={2} value={form.supportGroup.workDescription} onChange={e => set('supportGroup.workDescription', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Результат</label>
+                                        <textarea className="form-textarea" rows={2} value={form.supportGroup.result} onChange={e => set('supportGroup.result', e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="form-grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Дата выхода</label>
+                                        <input className="form-input" type="date" value={form.supportGroup.exitDate} onChange={e => set('supportGroup.exitDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Основание выхода</label>
+                                        <input className="form-input" type="text" value={form.supportGroup.exitGrounds} onChange={e => set('supportGroup.exitGrounds', e.target.value)} />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="divider" />
+
+                        {/* 3. Учёт у психиатра / ЦПП */}
+                        <div className="section-title"><Shield size={16} />3. Учёт у психиатра / ЦПП</div>
+                        <div className="form-group">
+                            <label className="form-label">Состоит на учёте у психиатра или ЦПП?</label>
+                            <div className="radio-group">
+                                {[['Да', true], ['Нет', false]].map(([lbl, val]) => (
+                                    <label key={String(lbl)} className="radio-item">
+                                        <input type="radio" name="psychReg"
+                                            checked={form.psychiatristRegistry.isRegistered === val}
+                                            onChange={() => set('psychiatristRegistry.isRegistered', val)} />
+                                        {String(lbl)}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        {form.psychiatristRegistry.isRegistered && (
+                            <>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Организация</label>
+                                        <select className="form-select" value={form.psychiatristRegistry.organization} onChange={e => set('psychiatristRegistry.organization', e.target.value)}>
+                                            <option value="">Выбрать</option>
+                                            <option>ЦПП</option>
+                                            <option>Психиатр</option>
+                                            <option>ПНД</option>
+                                            <option>Другое</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Дата постановки</label>
+                                        <input className="form-input" type="date" value={form.psychiatristRegistry.registrationDate} onChange={e => set('psychiatristRegistry.registrationDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Статус</label>
+                                        <div className="radio-group">
+                                            {['На учете', 'Снят'].map(s => (
+                                                <label key={s} className="radio-item">
+                                                    <input type="radio" name="psychStatus" value={s} checked={form.psychiatristRegistry.status === s} onChange={() => set('psychiatristRegistry.status', s)} />
+                                                    {s}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Диагноз / основание</label>
+                                        <input className="form-input" type="text" value={form.psychiatristRegistry.diagnosis} onChange={e => set('psychiatristRegistry.diagnosis', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">ФИО врача</label>
+                                        <input className="form-input" type="text" value={form.psychiatristRegistry.doctor} onChange={e => set('psychiatristRegistry.doctor', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Место лечения</label>
+                                        <input className="form-input" type="text" value={form.psychiatristRegistry.treatmentPlace} onChange={e => set('psychiatristRegistry.treatmentPlace', e.target.value)} />
+                                    </div>
+                                </div>
+                                {form.psychiatristRegistry.status === 'Снят' && (
+                                    <div className="form-grid-2" style={{ padding: 16, background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 8 }}>
+                                        <div className="form-group">
+                                            <label className="form-label">Дата снятия</label>
+                                            <input className="form-input" type="date" value={form.psychiatristRegistry.removalDate} onChange={e => set('psychiatristRegistry.removalDate', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Примечания</label>
+                                            <input className="form-input" type="text" value={form.psychiatristRegistry.notes} onChange={e => set('psychiatristRegistry.notes', e.target.value)} />
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        <div className="divider" />
+
+                        {/* 4. Сопровождение ЦПП */}
+                        <div className="section-title"><Building2 size={16} />4. Сопровождение ЦПП</div>
+                        <div className="form-group">
+                            <label className="form-label">Находится на сопровождении ЦПП?</label>
+                            <div className="radio-group">
+                                {[['Да', true], ['Нет', false]].map(([lbl, val]) => (
+                                    <label key={String(lbl)} className="radio-item">
+                                        <input type="radio" name="cppAcc"
+                                            checked={form.cppAccompaniment.isActive === val}
+                                            onChange={() => set('cppAccompaniment.isActive', val)} />
+                                        {String(lbl)}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        {form.cppAccompaniment.isActive && (
+                            <>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label className="form-label">Дата начала</label>
+                                        <input className="form-input" type="date" value={form.cppAccompaniment.startDate} onChange={e => set('cppAccompaniment.startDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Специалист ЦПП</label>
+                                        <input className="form-input" type="text" value={form.cppAccompaniment.specialist} onChange={e => set('cppAccompaniment.specialist', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Вид сопровождения</label>
+                                        <input className="form-input" type="text" value={form.cppAccompaniment.workType} onChange={e => set('cppAccompaniment.workType', e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="form-grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Цели</label>
+                                        <textarea className="form-textarea" rows={2} value={form.cppAccompaniment.goals} onChange={e => set('cppAccompaniment.goals', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Результаты</label>
+                                        <textarea className="form-textarea" rows={2} value={form.cppAccompaniment.results} onChange={e => set('cppAccompaniment.results', e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="form-grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Дата завершения</label>
+                                        <input className="form-input" type="date" value={form.cppAccompaniment.endDate} onChange={e => set('cppAccompaniment.endDate', e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Примечания</label>
+                                        <input className="form-input" type="text" value={form.cppAccompaniment.notes} onChange={e => set('cppAccompaniment.notes', e.target.value)} />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="divider" />
+
+                        {/* 5. Суицидальный учёт */}
+                        <div className="section-title" style={{ color: 'var(--danger)' }}>
+                            <Trash2 size={16} />5. Факты суицида и суицидальных попыток
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Зафиксированы факты суицида / попыток?</label>
+                            <div className="radio-group">
+                                {[['Да', true], ['Нет', false]].map(([lbl, val]) => (
+                                    <label key={String(lbl)} className="radio-item">
+                                        <input type="radio" name="suicideFacts"
+                                            checked={form.suicideRegistry.hasFacts === val}
+                                            onChange={() => set('suicideRegistry.hasFacts', val)} />
+                                        {String(lbl)}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        {form.suicideRegistry.hasFacts && (
+                            <>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                                    <button type="button" className="btn btn-danger btn-sm" onClick={() => {
+                                        const newInc: SuicideIncident = {
+                                            id: uuid(), date: new Date().toISOString().slice(0, 10),
+                                            type: '', description: '', measures: '', specialist: '',
+                                            parentNotified: false, policeNotified: false, hospitalized: false, notes: ''
+                                        };
+                                        set('suicideRegistry.incidents', [...form.suicideRegistry.incidents, newInc]);
+                                    }}>
+                                        <Plus size={14} /> Добавить факт
+                                    </button>
+                                </div>
+                                {form.suicideRegistry.incidents.map((inc, idx) => (
+                                    <div key={inc.id} className="consultation-entry" style={{ borderColor: 'rgba(239,68,68,0.3)' }}>
+                                        <div className="consultation-entry-header">
+                                            <span className="entry-number" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--danger)' }}>Факт #{idx + 1}</span>
+                                            <button type="button" className="btn btn-danger btn-sm" onClick={() => {
+                                                set('suicideRegistry.incidents', form.suicideRegistry.incidents.filter((_, i) => i !== idx));
+                                            }}><Trash2 size={13} /></button>
+                                        </div>
+                                        <div className="form-grid">
+                                            <div className="form-group">
+                                                <label className="form-label">Дата</label>
+                                                <input className="form-input" type="date" value={inc.date} onChange={e => {
+                                                    const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, date: e.target.value } : x);
+                                                    set('suicideRegistry.incidents', updated);
+                                                }} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Вид</label>
+                                                <select className="form-select" value={inc.type} onChange={e => {
+                                                    const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, type: e.target.value as SuicideIncident['type'] } : x);
+                                                    set('suicideRegistry.incidents', updated);
+                                                }}>
+                                                    <option value="">Выбрать</option>
+                                                    <option>Суицид</option>
+                                                    <option>Попытка суицида</option>
+                                                    <option>Суицидальные мысли</option>
+                                                    <option>Суицидальные угрозы</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Специалист</label>
+                                                <input className="form-input" type="text" value={inc.specialist} onChange={e => {
+                                                    const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, specialist: e.target.value } : x);
+                                                    set('suicideRegistry.incidents', updated);
+                                                }} />
+                                            </div>
+                                        </div>
+                                        <div className="form-grid-2">
+                                            <div className="form-group">
+                                                <label className="form-label">Описание</label>
+                                                <textarea className="form-textarea" rows={2} value={inc.description} onChange={e => {
+                                                    const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, description: e.target.value } : x);
+                                                    set('suicideRegistry.incidents', updated);
+                                                }} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Принятые меры</label>
+                                                <textarea className="form-textarea" rows={2} value={inc.measures} onChange={e => {
+                                                    const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, measures: e.target.value } : x);
+                                                    set('suicideRegistry.incidents', updated);
+                                                }} />
+                                            </div>
+                                        </div>
+                                        <div className="form-grid-3">
+                                            {[
+                                                ['parentNotified', 'Уведомлены родители'],
+                                                ['policeNotified', 'Уведомлена полиция'],
+                                                ['hospitalized', 'Госпитализирован'],
+                                            ].map(([field, lbl]) => (
+                                                <label key={field} className={`checkbox-item ${(inc as unknown as Record<string, boolean>)[field] ? 'checked' : ''}`}
+                                                    onClick={() => {
+                                                        const updated = form.suicideRegistry.incidents.map((x, i) =>
+                                                            i === idx ? { ...x, [field]: !(x as unknown as Record<string, boolean>)[field] } : x
+                                                        );
+                                                        set('suicideRegistry.incidents', updated);
+                                                    }}>
+                                                    <input type="checkbox" checked={(inc as unknown as Record<string, boolean>)[field]} onChange={() => { }} />
+                                                    {lbl}
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <div className="form-group" style={{ marginTop: 8 }}>
+                                            <label className="form-label">Примечания</label>
+                                            <textarea className="form-textarea" rows={2} value={inc.notes} onChange={e => {
+                                                const updated = form.suicideRegistry.incidents.map((x, i) => i === idx ? { ...x, notes: e.target.value } : x);
+                                                set('suicideRegistry.incidents', updated);
+                                            }} />
+                                        </div>
+                                    </div>
+                                ))}
+                                {form.suicideRegistry.incidents.length === 0 && (
+                                    <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-muted)' }}>Нажмите «Добавить факт»</div>
+                                )}
+                            </>
+                        )}
                     </div>
                 )}
 

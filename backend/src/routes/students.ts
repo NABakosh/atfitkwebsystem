@@ -25,6 +25,11 @@ function mapStudent(row: Record<string, unknown>) {
         internalRegistry: row.internal_registry,
         policeRegistry: row.police_registry,
         consultations: row.consultations,
+        psychologistRegistry: row.psychologist_registry,
+        supportGroup: row.support_group,
+        psychiatristRegistry: row.psychiatrist_registry,
+        cppAccompaniment: row.cpp_accompaniment,
+        suicideRegistry: row.suicide_registry,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
@@ -65,7 +70,8 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 router.post('/', authenticate, async (req: Request, res: Response) => {
     const {
         fullName, birthDate, group, iin, previousSchool, specialty,
-        course, address, phone, family, internalRegistry, policeRegistry, consultations
+        course, address, phone, family, internalRegistry, policeRegistry, consultations,
+        psychologistRegistry, supportGroup, psychiatristRegistry, cppAccompaniment, suicideRegistry
     } = req.body;
 
     if (!fullName) {
@@ -77,8 +83,9 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         const result = await pool.query(
             `INSERT INTO students (
                 full_name, birth_date, group_name, iin, previous_school, specialty,
-                course, address, phone, family, internal_registry, police_registry, consultations
-            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+                course, address, phone, family, internal_registry, police_registry, consultations,
+                psychologist_registry, support_group, psychiatrist_registry, cpp_accompaniment, suicide_registry
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
             RETURNING *`,
             [
                 fullName,
@@ -94,6 +101,11 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
                 JSON.stringify(internalRegistry || {}),
                 JSON.stringify(policeRegistry || { isRegistered: false }),
                 JSON.stringify(consultations || []),
+                JSON.stringify(psychologistRegistry || { isRegistered: false }),
+                JSON.stringify(supportGroup || { isMember: false }),
+                JSON.stringify(psychiatristRegistry || { isRegistered: false }),
+                JSON.stringify(cppAccompaniment || { isActive: false }),
+                JSON.stringify(suicideRegistry || { hasFacts: false, incidents: [] }),
             ]
         );
         res.status(201).json(mapStudent(result.rows[0]));
@@ -107,7 +119,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const {
         fullName, birthDate, group, iin, previousSchool, specialty,
-        course, address, phone, family, internalRegistry, policeRegistry, consultations
+        course, address, phone, family, internalRegistry, policeRegistry, consultations,
+        psychologistRegistry, supportGroup, psychiatristRegistry, cppAccompaniment, suicideRegistry
     } = req.body;
 
     try {
@@ -116,8 +129,11 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
                 full_name = $1, birth_date = $2, group_name = $3, iin = $4,
                 previous_school = $5, specialty = $6, course = $7, address = $8,
                 phone = $9, family = $10, internal_registry = $11,
-                police_registry = $12, consultations = $13, updated_at = NOW()
-            WHERE id = $14
+                police_registry = $12, consultations = $13,
+                psychologist_registry = $14, support_group = $15,
+                psychiatrist_registry = $16, cpp_accompaniment = $17,
+                suicide_registry = $18, updated_at = NOW()
+            WHERE id = $19
             RETURNING *`,
             [
                 fullName,
@@ -133,6 +149,11 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
                 JSON.stringify(internalRegistry || {}),
                 JSON.stringify(policeRegistry || { isRegistered: false }),
                 JSON.stringify(consultations || []),
+                JSON.stringify(psychologistRegistry || { isRegistered: false }),
+                JSON.stringify(supportGroup || { isMember: false }),
+                JSON.stringify(psychiatristRegistry || { isRegistered: false }),
+                JSON.stringify(cppAccompaniment || { isActive: false }),
+                JSON.stringify(suicideRegistry || { hasFacts: false, incidents: [] }),
                 req.params.id,
             ]
         );

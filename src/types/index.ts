@@ -64,6 +64,75 @@ export interface Consultation {
   dynamics: string;
 }
 
+// 1. Учёт у психолога колледжа
+export interface PsychologistRegistry {
+  isRegistered: boolean;
+  registrationDate: string;
+  grounds: string;
+  responsible: string;
+  preventiveWork: string;
+  status: 'На учете' | 'Снят' | '';
+  removalDate: string;
+  removalGrounds: string;
+  notes: string;
+}
+
+// 2. Группа сопровождения
+export interface SupportGroup {
+  isMember: boolean;
+  groupName: string;
+  joinDate: string;
+  responsible: string;
+  workDescription: string;
+  result: string;
+  exitDate: string;
+  exitGrounds: string;
+}
+
+// 3. Учёт у психиатра / ЦПП
+export interface PsychiatristRegistry {
+  isRegistered: boolean;
+  organization: string; // ЦПП, психиатр и т.д.
+  registrationDate: string;
+  diagnosis: string;
+  doctor: string;
+  treatmentPlace: string;
+  status: 'На учете' | 'Снят' | '';
+  removalDate: string;
+  notes: string;
+}
+
+// 4. Сопровождение ЦПП
+export interface CppAccompaniment {
+  isActive: boolean;
+  startDate: string;
+  specialist: string;
+  workType: string;
+  goals: string;
+  results: string;
+  endDate: string;
+  notes: string;
+}
+
+// 5. Суицидальный учёт
+export interface SuicideRegistry {
+  hasFacts: boolean;
+  incidents: SuicideIncident[];
+}
+
+export interface SuicideIncident {
+  id: string;
+  date: string;
+  type: 'Суицид' | 'Попытка суицида' | 'Суицидальные мысли' | 'Суицидальные угрозы' | '';
+  description: string;
+  measures: string;
+  specialist: string;
+  parentNotified: boolean;
+  policeNotified: boolean;
+  hospitalized: boolean;
+  notes: string;
+}
+
 export interface Student {
   id: string;
   photo: string; // base64
@@ -80,6 +149,11 @@ export interface Student {
   internalRegistry: InternalRegistry;
   policeRegistry: PoliceRegistry;
   consultations: Consultation[];
+  psychologistRegistry: PsychologistRegistry;
+  supportGroup: SupportGroup;
+  psychiatristRegistry: PsychiatristRegistry;
+  cppAccompaniment: CppAccompaniment;
+  suicideRegistry: SuicideRegistry;
   createdAt: string;
   updatedAt: string;
 }

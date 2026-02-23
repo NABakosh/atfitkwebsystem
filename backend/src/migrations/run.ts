@@ -5,10 +5,17 @@ import pool from '../db';
 export async function runMigrations() {
     const client = await pool.connect();
     try {
-        const sqlPath = path.join(__dirname, '001_init.sql');
-        const sql = fs.readFileSync(sqlPath, 'utf-8');
         console.log('🔄 Running migrations...');
-        await client.query(sql);
+        const migrationsDir = path.join(__dirname);
+        const sqlFiles = fs.readdirSync(migrationsDir)
+            .filter(f => f.endsWith('.sql'))
+            .sort();
+        for (const file of sqlFiles) {
+            const sqlPath = path.join(migrationsDir, file);
+            const sql = fs.readFileSync(sqlPath, 'utf-8');
+            console.log(`   ▶ ${file}`);
+            await client.query(sql);
+        }
         console.log('✅ Migrations completed successfully');
     } catch (error) {
         console.error('❌ Migration error:', error);

@@ -78,6 +78,26 @@ export function seedDemoData() {
                     dynamics: 'Слабоположительная.',
                 },
             ],
+            psychologistRegistry: {
+                isRegistered: true, registrationDate: '2024-09-15',
+                grounds: 'Прогулы, социальная дезадаптация', responsible: 'Сейтова А.Б.',
+                preventiveWork: 'Индивидуальные беседы, работа с семьёй', status: 'На учете',
+                removalDate: '', removalGrounds: '', notes: 'Требует систематического контроля',
+            },
+            supportGroup: {
+                isMember: true, groupName: 'Группа риска', joinDate: '2024-09-20',
+                responsible: 'Сейтова А.Б.', workDescription: 'Еженедельные занятия',
+                result: 'Слабоположительная динамика', exitDate: '', exitGrounds: '',
+            },
+            psychiatristRegistry: {
+                isRegistered: false, organization: '', registrationDate: '', diagnosis: '',
+                doctor: '', treatmentPlace: '', status: '', removalDate: '', notes: '',
+            },
+            cppAccompaniment: {
+                isActive: false, startDate: '', specialist: '',
+                workType: '', goals: '', results: '', endDate: '', notes: '',
+            },
+            suicideRegistry: { hasFacts: false, incidents: [] },
             createdAt: now,
             updatedAt: now,
         },
@@ -135,6 +155,25 @@ export function seedDemoData() {
                     dynamics: 'Нейтральная. Начало работы.',
                 },
             ],
+            psychologistRegistry: {
+                isRegistered: true, registrationDate: '2025-01-22',
+                grounds: 'Агрессивное поведение', responsible: 'Нурланова М.Ж.',
+                preventiveWork: 'Арт-терапия, тренинг по управлению эмоциями', status: 'Снят',
+                removalDate: '2025-03-15', removalGrounds: 'Положительная динамика', notes: '',
+            },
+            supportGroup: {
+                isMember: false, groupName: '', joinDate: '', responsible: '',
+                workDescription: '', result: '', exitDate: '', exitGrounds: '',
+            },
+            psychiatristRegistry: {
+                isRegistered: false, organization: '', registrationDate: '', diagnosis: '',
+                doctor: '', treatmentPlace: '', status: '', removalDate: '', notes: '',
+            },
+            cppAccompaniment: {
+                isActive: false, startDate: '', specialist: '',
+                workType: '', goals: '', results: '', endDate: '', notes: '',
+            },
+            suicideRegistry: { hasFacts: false, incidents: [] },
             createdAt: now,
             updatedAt: now,
         },
