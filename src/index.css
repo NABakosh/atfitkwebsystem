@@ -47,8 +47,8 @@ body,
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -279,7 +279,7 @@ body {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 8px;
@@ -294,12 +294,12 @@ body {
 .form-select,
 .form-textarea {
   width: 100%;
-  background: var(--bg-input);
+  background: var(--bg-input) !important;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 11px 14px;
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   font-family: 'Inter', sans-serif;
   transition: var(--transition);
   outline: none;
@@ -445,11 +445,12 @@ body {
 
 /* ===================== CARDS ===================== */
 .card {
-  background: var(--bg-card);
+  background: var(--bg-card) !important;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
+  color: var(--text-primary) !important;
 }
 
 .card-header {
@@ -464,7 +465,7 @@ body {
 .card-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -473,7 +474,7 @@ body {
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--gold) !important;
   margin-bottom: 20px;
   display: flex;
   align-items: center;
@@ -824,14 +825,14 @@ tbody td {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 16px;
   cursor: pointer;
   transition: var(--transition);
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
 }
 
 .radio-item input[type="radio"] {
